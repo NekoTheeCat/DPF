@@ -20,26 +20,9 @@ public class MainManager : MonoBehaviour
     
     private bool m_GameOver = false;
 
-    public static MainManager Instance;
-
-    public string Name;
-    [System.Serializable]
-    class SaveData
-    {
-        public string SavedName;
-    }
-
     private void Awake()
     {
-        if (Instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-        LoadName();
+        NameText.text = DataManager.Instance.HighscoreName + " " + DataManager.Instance.HighScore.ToString();
     }
     // Start is called before the first frame update
     void Start()
@@ -58,15 +41,9 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
-        var input = gameObject.GetComponent<InputField>();
-        var se = new InputField.SubmitEvent();
-        se.AddListener(SubmitName);
-        input.onEndEdit = se;
+
     }
-    private void SubmitName(string name)
-    {
-        Debug.Log(name);
-    }
+
     private void Update()
     {
         if (!m_Started)
@@ -87,6 +64,7 @@ public class MainManager : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+
             }
         }
     }
@@ -96,31 +74,17 @@ public class MainManager : MonoBehaviour
         m_Points += point;
         ScoreText.text = $"Score : {m_Points}";
     }
-    public void SaveName()
-    {
-        SaveData data = new SaveData();
-        data.SavedName = Name;
-
-        string json = JsonUtility.ToJson(data);
-
-        File.WriteAllText(Application.persistentDataPath + "/savefile.json", json);
-    }
-    public void LoadName()
-    {
-        string path = Application.persistentDataPath + "/savefile.json";
-        if (File.Exists(path))
-        {
-            string json = File.ReadAllText(path);
-            SaveData data = JsonUtility.FromJson<SaveData>(json);
-
-            Name = data.SavedName;
-        }
-    }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
-        
+        if (m_Points > DataManager.Instance.HighScore)
+        {
+            DataManager.Instance.HighscoreName = DataManager.Instance.LastName;
+            DataManager.Instance.HighScore = m_Points;
+            DataManager.Instance.SaveName();
+            NameText.text = DataManager.Instance.LastName + " " + DataManager.Instance.HighScore.ToString();
+        }
     }
 }

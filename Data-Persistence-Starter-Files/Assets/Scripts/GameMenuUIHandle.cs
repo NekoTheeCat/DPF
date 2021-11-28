@@ -9,13 +9,18 @@ public class GameMenuUIHandle : MonoBehaviour
 {
     public Text CurrentNameText;
     public Text CurrentHighscoreText;
-    public static MainManager Instance;
- 
+
+    public void Start()
+    {
+
+    }
     public void StartGame()
     {
         SceneManager.LoadScene(1);
-
-
+    }
+    public void SetHighScoreText(string name)
+    {
+        CurrentHighscoreText.text = "Highscore ";
     }
     public void Exit()
     {
